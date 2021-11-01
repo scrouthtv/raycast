@@ -1,6 +1,10 @@
-package main
+package raycast
 
-import "math"
+import (
+	"math"
+
+	"github.com/fogleman/fauxgl"
+)
 
 type Vec3d struct {
 	X, Y, Z float64
@@ -36,6 +40,10 @@ func (v Vec3d) Normalize() Vec3d {
 
 func (v Vec3d) Cross(v2 Vec3d) Vec3d {
 	return Vec3d{v.Y*v2.Z - v.Z*v2.Y, v.Z*v2.X - v.X*v2.Z, v.X*v2.Y - v.Y*v2.X}
+}
+
+func (v Vec3d) ToGl() *fauxgl.Vector {
+	return &fauxgl.Vector{X: v.X, Y: v.Y, Z: v.Z}
 }
 
 type Ray struct {

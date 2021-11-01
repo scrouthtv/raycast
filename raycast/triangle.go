@@ -1,12 +1,14 @@
-package main
+package raycast
 
-// Polygon is a triangle in three-dimensional space.
-type Polygon struct {
+import "github.com/fogleman/fauxgl"
+
+// Triangle is a triangle in three-dimensional space.
+type Triangle struct {
 	Vs [3]Vec3d
 }
 
 // Hit tests whether the specified ray hits the polygon.
-func (p *Polygon) Hit(r *Ray, tmin, tmax float64) (bool, *HitRecord) {
+func (p *Triangle) Hit(r *Ray, tmin, tmax float64) (bool, *HitRecord) {
 	edge1 := p.Vs[1].Sub(p.Vs[0])
 	edge2 := p.Vs[2].Sub(p.Vs[0])
 
@@ -38,4 +40,12 @@ func (p *Polygon) Hit(r *Ray, tmin, tmax float64) (bool, *HitRecord) {
 		Where: r.At(t),
 		T:     t,
 	}
+}
+
+func (t *Triangle) ToGL() *fauxgl.Triangle {
+	return fauxgl.NewTriangle(
+		fauxgl.Vertex{Position: *t.Vs[0].ToGl()},
+		fauxgl.Vertex{Position: *t.Vs[1].ToGl()},
+		fauxgl.Vertex{Position: *t.Vs[2].ToGl()},
+	)
 }

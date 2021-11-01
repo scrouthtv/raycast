@@ -1,4 +1,4 @@
-package main
+package raycast
 
 const (
 	// RayStep indicates how many the distance between cast rays
