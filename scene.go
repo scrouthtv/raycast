@@ -2,6 +2,10 @@ package main
 
 import "image"
 
+const (
+	Epsilon = 0.0000001
+)
+
 type Scene struct {
 	L *Lamp
 	M *Mesh

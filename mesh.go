@@ -21,6 +21,7 @@ func NewMesh(xstep, zstep float64, xsize, zsize int) *Mesh {
 	return m
 }
 
-type Polygon struct {
-	Vs [3]Vec3d
+type HitRecord struct {
+	Where Vec3d
+	T     float64
 }
