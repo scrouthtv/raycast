@@ -1,16 +1,16 @@
 package main
 
 type Mesh struct {
-	Heights        [][]float64
-	XScale, ZScale float64
-	Zero           Vec3d
+	Heights      [][]float64
+	XStep, ZStep float64
+	Zero         Vec3d
 }
 
-func NewMesh(xscale, zscale float64, xsize, zsize int) *Mesh {
+func NewMesh(xstep, zstep float64, xsize, zsize int) *Mesh {
 	m := new(Mesh)
 
-	m.XScale = xscale
-	m.ZScale = zscale
+	m.XStep = xstep
+	m.ZStep = zstep
 	m.Zero = Vec3d{0, 0, 0}
 
 	m.Heights = make([][]float64, xsize)
@@ -19,4 +19,8 @@ func NewMesh(xscale, zscale float64, xsize, zsize int) *Mesh {
 	}
 
 	return m
+}
+
+type Polygon struct {
+	Vs [3]Vec3d
 }
