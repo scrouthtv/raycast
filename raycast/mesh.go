@@ -70,7 +70,7 @@ func LoadMesh(r *bufio.Reader) (*Mesh, error) {
 		for x, h := range hs {
 			hf, err := strconv.ParseFloat(h, 64)
 			if err != nil {
-				return nil, err
+				return nil, &ErrBadNumber{x + 1, h, err}
 			}
 
 			m.Heights[x][z] = hf
@@ -88,6 +88,16 @@ type ErrMismatchingXsize struct {
 
 func (e *ErrMismatchingXsize) Error() string {
 	return fmt.Sprintf("error: mismatching xsize on line %d, expected %d, got %d", e.Line, e.Expected, e.Got)
+}
+
+type ErrBadNumber struct {
+	Line int
+	H    string
+	Err  error
+}
+
+func (e *ErrBadNumber) Error() string {
+	return e.Err.Error() + " on line " + strconv.Itoa(e.Line) + " with '" + e.H + "'"
 }
 
 func (m *Mesh) toVec(x, z int) Vec3d {

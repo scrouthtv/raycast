@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"math"
 	"os"
 
 	"github.com/fogleman/fauxgl"
@@ -10,49 +11,43 @@ import (
 )
 
 const (
-	fov  = 30
-	near = .5
-	far  = 10
+	fov    = 30
+	near   = .5
+	far    = 30
+	frames = 100
 )
 
 var (
-	eye    = fauxgl.V(3, 1, .75)
-	center = fauxgl.V(0, 0, 0)
+	eye    = fauxgl.V(5, 0, 1)
+	center = fauxgl.V(0, 0, 0.5)
 	up     = fauxgl.V(0, 0, 1)
 	light  = fauxgl.V(-.75, 1, .25).Normalize()
 )
 
 func main() {
+	for t := 0.0; t < frames; t++ {
+		eye = fauxgl.V(8*math.Cos(2*t*math.Pi/frames), 8*math.Sin(2*t*math.Pi/frames), 1.5)
+		saveAs(fmt.Sprintf("out/%03.0f.png", t))
+		fmt.Printf("%.0f/%d\n", t, frames)
+	}
+}
+
+func saveAs(name string) {
 	ctx := fauxgl.NewContext(1920, 1080)
-	ctx.ClearColorBufferWith(fauxgl.HexColor("#FFF8E3"))
+	ctx.ClearColorBufferWith(fauxgl.HexColor("#87CEEB"))
 
 	matrix := fauxgl.LookAt(eye, center, up).Perspective(fov, 1920.0/1080.0, near, far)
 	shader := fauxgl.NewPhongShader(matrix, light, eye)
 	shader.ObjectColor = fauxgl.HexColor("#468966")
 	ctx.Shader = shader
 
-	/*mesh, _ := fauxgl.LoadSTL("taste01niwwer.stl")
-	mesh.BiUnitCube()
-	ctx.DrawMesh(mesh)*/
-
 	x := fauxgl.NewLineForPoints(fauxgl.V(0, 0, 0), fauxgl.V(1, 0, 0))
 	y := fauxgl.NewLineForPoints(fauxgl.V(0, 0, 0), fauxgl.V(0, 1, 0))
 	z := fauxgl.NewLineForPoints(fauxgl.V(0, 0, 0), fauxgl.V(0, 0, 1))
-	marks := []*fauxgl.Line{
-		fauxgl.NewLineForPoints(fauxgl.V(.2, -.1, -.1), fauxgl.V(.2, .1, .1)),
-		fauxgl.NewLineForPoints(fauxgl.V(-.1, .2, -.1), fauxgl.V(.1, .2, .1)),
-		fauxgl.NewLineForPoints(fauxgl.V(-.1, .3, -.1), fauxgl.V(.1, .3, .1)),
-		fauxgl.NewLineForPoints(fauxgl.V(-.1, -.1, .2), fauxgl.V(.1, .1, .2)),
-		fauxgl.NewLineForPoints(fauxgl.V(-.1, -.1, .3), fauxgl.V(.1, .1, .3)),
-		fauxgl.NewLineForPoints(fauxgl.V(-.1, -.1, .4), fauxgl.V(.1, .1, .4)),
-	}
 
 	ctx.DrawLine(x)
 	ctx.DrawLine(y)
 	ctx.DrawLine(z)
-	for _, l := range marks {
-		ctx.DrawLine(l)
-	}
 
 	f, err := os.Open("test01.htb")
 	if err != nil {
@@ -66,14 +61,13 @@ func main() {
 		return
 	}
 
+	mesh.Zero = raycast.Vec3d{X: -1, Y: .5, Z: .5}
+
 	fmt.Println("Loaded", len(mesh.AllTris()), "triangles.")
-	//fmt.Println(mesh.AllTris())
 	fmesh := mesh.ToGL()
-	fmesh.SaveSTL("test01.stl")
+	//fmesh.SaveSTL("test01.stl")
 
-	//mesh.Zero = raycast.Vec3d{}
-	info := ctx.DrawMesh(fmesh)
-	fmt.Println(info)
+	ctx.DrawMesh(fmesh)
 
-	fauxgl.SavePNG("out.png", ctx.Image())
+	fauxgl.SavePNG(name, ctx.Image())
 }

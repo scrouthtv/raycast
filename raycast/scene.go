@@ -27,10 +27,6 @@ func NewScene(l *Lamp, m *Mesh, w, h int) *Scene {
 	return s
 }
 
-func (s *Scene) Draw() {
-
-}
-
 type RayConsumer interface {
 	Consume(r *Ray)
 }
