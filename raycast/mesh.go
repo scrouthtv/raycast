@@ -1,6 +1,12 @@
 package raycast
 
 import (
+	"bufio"
+	"errors"
+	"fmt"
+	"strconv"
+	"strings"
+
 	"github.com/fogleman/fauxgl"
 )
 
@@ -23,6 +29,65 @@ func NewMesh(xstep, zstep float64, xsize, zsize int) *Mesh {
 	}
 
 	return m
+}
+
+// LoadMesh loads a hight profile from an .htb file.
+// The file must have a trailing newline.
+func LoadMesh(r *bufio.Reader) (*Mesh, error) {
+	l, err := r.ReadString('\n')
+	if err != nil {
+		return nil, err
+	}
+
+	var xstep, zstep float64
+	_, err = fmt.Sscanf(l, "%f %f", &xstep, &zstep)
+	if err != nil {
+		return nil, err
+	}
+
+	lines := make([]string, 0)
+
+	l, err = r.ReadString('\n')
+	for err == nil {
+		lines = append(lines, strings.TrimRight(l, "\r\n"))
+		l, err = r.ReadString('\n')
+	}
+
+	if len(lines) == 0 {
+		return nil, errors.New("empty file")
+	}
+
+	xsize := strings.Count(lines[0], " ") + 1
+
+	m := NewMesh(xstep, zstep, xsize, len(lines))
+
+	for z, l := range lines {
+		hs := strings.Split(l, " ")
+		if len(hs) != xsize {
+			return nil, &ErrMismatchingXsize{z, xsize, len(hs)}
+		}
+
+		for x, h := range hs {
+			hf, err := strconv.ParseFloat(h, 64)
+			if err != nil {
+				return nil, err
+			}
+
+			m.Heights[x][z] = hf
+		}
+	}
+
+	return m, nil
+}
+
+type ErrMismatchingXsize struct {
+	Line     int
+	Expected int
+	Got      int
+}
+
+func (e *ErrMismatchingXsize) Error() string {
+	return fmt.Sprintf("error: mismatching xsize on line %d, expected %d, got %d", e.Line, e.Expected, e.Got)
 }
 
 func (m *Mesh) toVec(x, z int) Vec3d {
