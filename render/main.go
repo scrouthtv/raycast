@@ -65,9 +65,9 @@ func saveAs(name string) {
 
 	lamp := raycast.Lamp{Pos: raycast.Vec3d{X: 0, Y: 1.5, Z: 1.2}, Horizontal: 1, Vertical: 1}
 
-	raycast.NewScene(&lamp, mesh, 1920, 1080)
+	scene := raycast.NewScene(&lamp, mesh, 1920, 1080)
 
-	rd := RayDrawer{ctx, mesh}
+	rd := RayDrawer{ctx, scene}
 	lamp.EachRay(&rd)
 
 	fmt.Println("Loaded", len(mesh.AllTris()), "triangles.")
@@ -80,24 +80,19 @@ func saveAs(name string) {
 }
 
 type RayDrawer struct {
-	ctx  *fauxgl.Context
-	mesh *raycast.Mesh
+	ctx   *fauxgl.Context
+	scene *raycast.Scene
 }
 
 func (d *RayDrawer) Consume(r *raycast.Ray) {
-	a := r.At(0).ToGl()
-
-	ok, rec := d.mesh.Hit(r, 0, 10)
-	t := 1.0
-	if ok {
-		t = rec.T
-
-		reflect := r.Reflect(rec)
-		c := reflect.At(1)
-		l := fauxgl.NewLineForPoints(*r.At(t).ToGl(), *c.ToGl())
-		d.ctx.DrawLine(l)
+	trace := d.scene.Trace(r)
+	for i, r := range trace.Rays {
+		d.draw(&r, trace.Ts[i])
 	}
+}
 
+func (d *RayDrawer) draw(r *raycast.Ray, t float64) {
+	a := r.At(0).ToGl()
 	b := r.At(t).ToGl()
 	l := fauxgl.NewLineForPoints(*a, *b)
 	d.ctx.DrawLine(l)

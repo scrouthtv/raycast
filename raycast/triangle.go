@@ -45,6 +45,7 @@ func (p *Triangle) Hit(r *Ray, tmin, tmax float64) (bool, *HitRecord) {
 		Where:  r.At(t),
 		Normal: p.Normal(),
 		T:      t,
+		Absorb: false,
 	}
 }
 

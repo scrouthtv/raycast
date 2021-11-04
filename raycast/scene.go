@@ -6,11 +6,16 @@ const (
 	Epsilon = 0.0000001
 )
 
+var (
+	targetNormal = Vec3d{0, 1, 0}
+)
+
 type Scene struct {
 	L *Lamp
 	M *Mesh
 
 	// Y is the distance to the target plane on the y axis.
+	// The target plane is infinitely large in width and height.
 	Y float64
 
 	Img *image.RGBA
@@ -27,17 +32,47 @@ func NewScene(l *Lamp, m *Mesh, w, h int) *Scene {
 	return s
 }
 
-// RayPath describes a (multiple times) reflected ray.
-// Each "subray" Rays[i] is used from T = 0 to T = Ts[i]
-type RayPath struct {
-	Rays []Ray
-	Ts   []float64
+func (s *Scene) Hit(r *Ray, tmin, tmax float64) (bool, *HitRecord) {
+	ok1, hit1 := s.M.Hit(r, tmin, tmax)
+	ok2, hit2 := s.hitTarget(r, tmin, tmax)
+	if ok1 && ok2 {
+		if hit1.T < hit2.T {
+			return true, hit1
+		} else {
+			return true, hit2
+		}
+	} else if ok1 {
+		return true, hit1
+	} else if ok2 {
+		return true, hit2
+	} else {
+		return false, nil
+	}
+}
+
+func (s *Scene) hitTarget(r *Ray, tmin, tmax float64) (bool, *HitRecord) {
+	// y = r.Origin.Y + t * r.Direction.Y
+	// t = (y - r.Origin.Y) / r.Direction.Y
+	t := (s.Y - r.Origin.Y) / r.Direction.Y
+	if t < tmin || t > tmax {
+		return false, nil
+	}
+
+	return true, &HitRecord{
+		Where:  r.At(t),
+		Normal: targetNormal,
+		T:      t,
+		Absorb: true,
+	}
 }
 
 func (s *Scene) Trace(r *Ray) *RayPath {
-	return nil
-}
+	if r == nil {
+		println("nil ray")
+		return &RayPath{}
+	}
 
-type RayConsumer interface {
-	Consume(r *Ray)
+	path := RayPath{nil, nil}
+	path.add(r, s, 30)
+	return &path
 }
