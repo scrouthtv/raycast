@@ -170,6 +170,7 @@ func (m *Mesh) ToGL() *fauxgl.Mesh {
 }
 
 type HitRecord struct {
-	Where Vec3d
-	T     float64
+	Where  Vec3d
+	Normal Vec3d
+	T      float64
 }

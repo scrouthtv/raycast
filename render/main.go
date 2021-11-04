@@ -91,7 +91,13 @@ func (d *RayDrawer) Consume(r *raycast.Ray) {
 	t := 1.0
 	if ok {
 		t = rec.T
+
+		reflect := r.Reflect(rec)
+		c := reflect.At(1)
+		l := fauxgl.NewLineForPoints(*r.At(t).ToGl(), *c.ToGl())
+		d.ctx.DrawLine(l)
 	}
+
 	b := r.At(t).ToGl()
 	l := fauxgl.NewLineForPoints(*a, *b)
 	d.ctx.DrawLine(l)

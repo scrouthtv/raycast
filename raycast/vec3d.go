@@ -53,3 +53,10 @@ type Ray struct {
 func (r *Ray) At(t float64) Vec3d {
 	return r.Origin.Add(r.Direction.Mul(t))
 }
+
+func (r *Ray) Reflect(rec *HitRecord) Ray {
+	return Ray{
+		Origin:    r.At(rec.T),
+		Direction: r.Direction.Add(rec.Normal.Mul(2)),
+	}
+}

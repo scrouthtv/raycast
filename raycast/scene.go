@@ -27,6 +27,17 @@ func NewScene(l *Lamp, m *Mesh, w, h int) *Scene {
 	return s
 }
 
+// RayPath describes a (multiple times) reflected ray.
+// Each "subray" Rays[i] is used from T = 0 to T = Ts[i]
+type RayPath struct {
+	Rays []Ray
+	Ts   []float64
+}
+
+func (s *Scene) Trace(r *Ray) *RayPath {
+	return nil
+}
+
 type RayConsumer interface {
 	Consume(r *Ray)
 }

@@ -42,9 +42,16 @@ func (p *Triangle) Hit(r *Ray, tmin, tmax float64) (bool, *HitRecord) {
 	}
 
 	return true, &HitRecord{
-		Where: r.At(t),
-		T:     t,
+		Where:  r.At(t),
+		Normal: p.Normal(),
+		T:      t,
 	}
+}
+
+func (t *Triangle) Normal() Vec3d {
+	edge1 := t.Vs[1].Sub(t.Vs[0])
+	edge2 := t.Vs[2].Sub(t.Vs[0])
+	return edge1.Cross(edge2).Normalize()
 }
 
 func (t *Triangle) ToGL() *fauxgl.Triangle {
