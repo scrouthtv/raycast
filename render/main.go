@@ -60,16 +60,15 @@ func saveAs(name string) {
 		fmt.Println(err)
 		return
 	}
-
 	mesh.Zero = raycast.Vec3d{X: -1, Y: .5, Z: .5}
 
 	lamp := raycast.Lamp{Pos: raycast.Vec3d{X: 0, Y: 1.5, Z: 1.2}, Horizontal: 1, Vertical: 1}
 
-	scene := raycast.NewScene(&lamp, mesh, 1920, 1080)
+	scene := raycast.NewScene(&lamp, mesh)
 
-	rd := RayDrawer{ctx, scene, 0, 0}
-	lamp.EachRay(&rd)
-	fmt.Printf("%d/%d absorbed\n", rd.absorbed, rd.total)
+	rd := rayDrawer{ctx}
+	trace := scene.EachTrace(&rd)
+	fmt.Printf("%d/%d absorbed\n", trace.Absorbed, trace.Total)
 
 	//rd.Consume(&raycast.Ray{Origin: lamp.Pos, Direction: raycast.Vec3d{X: 0, Y: -1, Z: 0}})
 
@@ -82,28 +81,13 @@ func saveAs(name string) {
 	fauxgl.SavePNG(name, ctx.Image())
 }
 
-type RayDrawer struct {
-	ctx             *fauxgl.Context
-	scene           *raycast.Scene
-	absorbed, total int
+type rayDrawer struct {
+	ctx *fauxgl.Context
 }
 
-func (d *RayDrawer) Consume(r *raycast.Ray) {
-	d.total++
-	trace := d.scene.Trace(r)
-	if !trace.Absorbed {
-		return
-	}
-	d.absorbed++
-
-	for i, r := range trace.Rays {
-		d.draw(&r, trace.Ts[i])
-	}
-}
-
-func (d *RayDrawer) draw(r *raycast.Ray, t float64) {
-	a := r.At(0).ToGl()
-	b := r.At(t).ToGl()
+func (d *rayDrawer) Consume(r *raycast.Ray, tmin, tmax float64) {
+	a := r.At(tmin).ToGl()
+	b := r.At(tmax).ToGl()
 	l := fauxgl.NewLineForPoints(*a, *b)
 	d.ctx.DrawLine(l)
 }

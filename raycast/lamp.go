@@ -17,7 +17,7 @@ type Lamp struct {
 	Horizontal, Vertical float64
 }
 
-func (l *Lamp) EachRay(c RayConsumer) {
+func (l *Lamp) eachRay(c RayConsumer) {
 	ray := Ray{l.Pos, Vec3d{0, 0, 0}}
 
 	for x := -l.Horizontal; x <= l.Horizontal; x += RayStep {

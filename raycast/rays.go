@@ -36,6 +36,37 @@ func (p *RayPath) add(r *Ray, s *Scene, depth int) {
 	}
 }
 
+func (p *RayPath) EndPoint() Vec3d {
+	i := len(p.Rays) - 1
+	return p.Rays[i].At(p.Ts[i])
+}
+
+type RayTracer struct {
+	T               TraceConsumer
+	S               *Scene
+	Total, Absorbed int
+}
+
+func (t *RayTracer) Consume(r *Ray) {
+	t.Total++
+	trace := t.S.Trace(r)
+	if !trace.Absorbed {
+		return
+	}
+
+	t.Absorbed++
+
+	t.T.Consume(trace)
+}
+
 type RayConsumer interface {
 	Consume(r *Ray)
+}
+
+type TraceConsumer interface {
+	Consume(t *RayPath)
+}
+
+type LineConsumer interface {
+	Consume(r *Ray, tmin, tmax float64)
 }

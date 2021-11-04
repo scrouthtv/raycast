@@ -1,7 +1,5 @@
 package raycast
 
-import "image"
-
 const (
 	Epsilon = 0.0000001
 )
@@ -17,16 +15,13 @@ type Scene struct {
 	// Y is the distance to the target plane on the y axis.
 	// The target plane is infinitely large in width and height.
 	Y float64
-
-	Img *image.RGBA
 }
 
-func NewScene(l *Lamp, m *Mesh, w, h int) *Scene {
+func NewScene(l *Lamp, m *Mesh) *Scene {
 	s := &Scene{
-		L:   l,
-		M:   m,
-		Y:   -5,
-		Img: image.NewRGBA(image.Rect(0, 0, w, h)),
+		L: l,
+		M: m,
+		Y: -5,
 	}
 
 	return s
@@ -64,6 +59,12 @@ func (s *Scene) hitTarget(r *Ray, tmin, tmax float64) (bool, *HitRecord) {
 		T:      t,
 		Absorb: true,
 	}
+}
+
+func (s *Scene) EachTrace(t TraceConsumer) *RayTracer {
+	r := &RayTracer{t, s, 0, 0}
+	s.L.eachRay(r)
+	return r
 }
 
 func (s *Scene) Trace(r *Ray) *RayPath {
