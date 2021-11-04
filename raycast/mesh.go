@@ -80,26 +80,6 @@ func LoadMesh(r *bufio.Reader) (*Mesh, error) {
 	return m, nil
 }
 
-type ErrMismatchingXsize struct {
-	Line     int
-	Expected int
-	Got      int
-}
-
-func (e *ErrMismatchingXsize) Error() string {
-	return fmt.Sprintf("error: mismatching xsize on line %d, expected %d, got %d", e.Line, e.Expected, e.Got)
-}
-
-type ErrBadNumber struct {
-	Line int
-	H    string
-	Err  error
-}
-
-func (e *ErrBadNumber) Error() string {
-	return e.Err.Error() + " on line " + strconv.Itoa(e.Line) + " with '" + e.H + "'"
-}
-
 func (m *Mesh) toVec(x, z int) Vec3d {
 	var xval float64 = float64(x) * m.XStep
 	if z%2 == 1 {
