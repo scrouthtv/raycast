@@ -67,8 +67,11 @@ func saveAs(name string) {
 
 	scene := raycast.NewScene(&lamp, mesh, 1920, 1080)
 
-	rd := RayDrawer{ctx, scene}
+	rd := RayDrawer{ctx, scene, 0, 0}
 	lamp.EachRay(&rd)
+	fmt.Printf("%d/%d absorbed\n", rd.absorbed, rd.total)
+
+	//rd.Consume(&raycast.Ray{Origin: lamp.Pos, Direction: raycast.Vec3d{X: 0, Y: -1, Z: 0}})
 
 	fmt.Println("Loaded", len(mesh.AllTris()), "triangles.")
 	fmesh := mesh.ToGL()
@@ -80,12 +83,19 @@ func saveAs(name string) {
 }
 
 type RayDrawer struct {
-	ctx   *fauxgl.Context
-	scene *raycast.Scene
+	ctx             *fauxgl.Context
+	scene           *raycast.Scene
+	absorbed, total int
 }
 
 func (d *RayDrawer) Consume(r *raycast.Ray) {
+	d.total++
 	trace := d.scene.Trace(r)
+	if !trace.Absorbed {
+		return
+	}
+	d.absorbed++
+
 	for i, r := range trace.Rays {
 		d.draw(&r, trace.Ts[i])
 	}

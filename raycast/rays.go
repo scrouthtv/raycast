@@ -10,8 +10,9 @@ type HitRecord struct {
 // RayPath describes a (multiple times) reflected ray.
 // Each "subray" Rays[i] is used from T = 0 to T = Ts[i]
 type RayPath struct {
-	Rays []Ray
-	Ts   []float64
+	Rays     []Ray
+	Ts       []float64
+	Absorbed bool
 }
 
 func (p *RayPath) add(r *Ray, s *Scene, depth int) {
@@ -30,8 +31,8 @@ func (p *RayPath) add(r *Ray, s *Scene, depth int) {
 		p.add(&ray, s, depth-1)
 	}
 
-	if depth == 0 {
-		println("aborted ray")
+	if hit.Absorb {
+		p.Absorbed = true
 	}
 }
 

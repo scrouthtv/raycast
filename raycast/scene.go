@@ -25,7 +25,7 @@ func NewScene(l *Lamp, m *Mesh, w, h int) *Scene {
 	s := &Scene{
 		L:   l,
 		M:   m,
-		Y:   5,
+		Y:   -5,
 		Img: image.NewRGBA(image.Rect(0, 0, w, h)),
 	}
 
@@ -72,7 +72,7 @@ func (s *Scene) Trace(r *Ray) *RayPath {
 		return &RayPath{}
 	}
 
-	path := RayPath{nil, nil}
+	path := RayPath{nil, nil, false}
 	path.add(r, s, 30)
 	return &path
 }
