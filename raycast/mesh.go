@@ -133,6 +133,31 @@ func (m *Mesh) AllTris() []Triangle {
 	return tris
 }
 
+func (m *Mesh) Hit(r *Ray, tmin, tmax float64) (ok bool, rec *HitRecord) {
+	ok = false
+	rec = &HitRecord{T: tmax + 1}
+
+	var myok bool
+	var myrec *HitRecord
+	for _, tri := range m.AllTris() {
+		myok, myrec = tri.Hit(r, tmin, tmax)
+		if !myok {
+			continue
+		}
+
+		if myrec.T < rec.T {
+			ok = true
+			rec = myrec
+		}
+	}
+
+	if !ok {
+		return false, nil
+	}
+
+	return
+}
+
 func (m *Mesh) ToGL() *fauxgl.Mesh {
 	tris := m.AllTris()
 	gltris := make([]*fauxgl.Triangle, len(tris))

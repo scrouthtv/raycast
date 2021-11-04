@@ -21,7 +21,7 @@ var (
 	eye    = fauxgl.V(5, 0, 1)
 	center = fauxgl.V(0, 0, 0.5)
 	up     = fauxgl.V(0, 0, 1)
-	light  = fauxgl.V(-.75, 1, .25).Normalize()
+	light  = fauxgl.V(0, -1, 0).Normalize()
 )
 
 func main() {
@@ -38,7 +38,7 @@ func saveAs(name string) {
 
 	matrix := fauxgl.LookAt(eye, center, up).Perspective(fov, 1920.0/1080.0, near, far)
 	shader := fauxgl.NewPhongShader(matrix, light, eye)
-	shader.ObjectColor = fauxgl.HexColor("#468966")
+	shader.ObjectColor = fauxgl.HexColor("#cddc39")
 	ctx.Shader = shader
 
 	x := fauxgl.NewLineForPoints(fauxgl.V(0, 0, 0), fauxgl.V(1, 0, 0))
@@ -67,7 +67,7 @@ func saveAs(name string) {
 
 	raycast.NewScene(&lamp, mesh, 1920, 1080)
 
-	rd := RayDrawer{ctx}
+	rd := RayDrawer{ctx, mesh}
 	lamp.EachRay(&rd)
 
 	fmt.Println("Loaded", len(mesh.AllTris()), "triangles.")
@@ -80,12 +80,19 @@ func saveAs(name string) {
 }
 
 type RayDrawer struct {
-	ctx *fauxgl.Context
+	ctx  *fauxgl.Context
+	mesh *raycast.Mesh
 }
 
 func (d *RayDrawer) Consume(r *raycast.Ray) {
 	a := r.At(0).ToGl()
-	b := r.At(1).ToGl()
+
+	ok, rec := d.mesh.Hit(r, 0, 10)
+	t := 1.0
+	if ok {
+		t = rec.T
+	}
+	b := r.At(t).ToGl()
 	l := fauxgl.NewLineForPoints(*a, *b)
 	d.ctx.DrawLine(l)
 }

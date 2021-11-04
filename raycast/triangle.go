@@ -36,6 +36,11 @@ func (p *Triangle) Hit(r *Ray, tmin, tmax float64) (bool, *HitRecord) {
 
 	// Ray intersects
 	t := f * edge2.Dot(q)
+
+	if t < tmin || t > tmax {
+		return false, nil
+	}
+
 	return true, &HitRecord{
 		Where: r.At(t),
 		T:     t,
