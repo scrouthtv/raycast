@@ -3,7 +3,7 @@ package raycast
 const (
 	// RayStep indicates how many the distance between cast rays
 	// on a plane 1 unit away.
-	RayStep = 1.0
+	RayStep = 0.2
 )
 
 type Lamp struct {

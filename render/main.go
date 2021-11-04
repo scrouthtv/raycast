@@ -63,6 +63,13 @@ func saveAs(name string) {
 
 	mesh.Zero = raycast.Vec3d{X: -1, Y: .5, Z: .5}
 
+	lamp := raycast.Lamp{Pos: raycast.Vec3d{X: 0, Y: 1.5, Z: 1.2}, Horizontal: 1, Vertical: 1}
+
+	raycast.NewScene(&lamp, mesh, 1920, 1080)
+
+	rd := RayDrawer{ctx}
+	lamp.EachRay(&rd)
+
 	fmt.Println("Loaded", len(mesh.AllTris()), "triangles.")
 	fmesh := mesh.ToGL()
 	//fmesh.SaveSTL("test01.stl")
@@ -70,4 +77,15 @@ func saveAs(name string) {
 	ctx.DrawMesh(fmesh)
 
 	fauxgl.SavePNG(name, ctx.Image())
+}
+
+type RayDrawer struct {
+	ctx *fauxgl.Context
+}
+
+func (d *RayDrawer) Consume(r *raycast.Ray) {
+	a := r.At(0).ToGl()
+	b := r.At(1).ToGl()
+	l := fauxgl.NewLineForPoints(*a, *b)
+	d.ctx.DrawLine(l)
 }
